@@ -1,5 +1,13 @@
 # 从 Agent 过程观测到 AePis
 
+## AePis 简介
+
+AePis 是一套面向自动化渗透测试的 Agent Harness。它基于 `pi-ai` 和 `pi-agent-core` 构建，不只是为模型增加工具，而是将专业红队的分工、执行、观测和监督组织到同一个运行时中。
+
+在协作方式上，AePis 由 Main Agent 统一制定策略和调度任务，并通过 19 个预定义的强角色 Subagent 承担资产侦察、认证与 API、注入、业务逻辑、AI 安全、DeFi 安全、漏洞验证和报告整理等专业工作。多个 Subagent 可以与 Main Agent 并行推进，各自返回结构化事实和证据，再由 Main Agent 综合判断并调整下一步行动。
+
+在运行过程中，AePis 从模型上下文、推理请求、工具调用、CLI、Skill、MCP 和 Subagent 协作等真实边界采集事件。Observer 根据这些事件识别停滞、重复失败和证据断点，Supervisor 则将判断转化为可追踪的提醒、重规划或受控收尾。该方案来源于 XUANJIAN 观测平台对 Agent 可观测链路的实践，并在 AePis 中进一步下沉为 Agent Runtime 级的工程实现。
+
 ## 设计背景与动机
 
 ### 结果导向难以解释 Agent 的真实能力
