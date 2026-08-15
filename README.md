@@ -22,7 +22,7 @@
 
 现有 Benchmark 的主要问题由此显现出来：一次运行可能包含几十个模型 Turn、数百次工具交互以及大量目标响应，最终却通常只被压缩为成功或失败。结果可以用于排行，却没有保留足够的过程信息来支持诊断和改进。
 
-![终局结果对执行轨迹的压缩](assets/result-compression.svg)
+![终局结果对执行轨迹的压缩](assets/result-compression.png)
 
 当 Agent 的运行吞吐量不断提高时，这种信息压缩还会形成新的反馈瓶颈：Agent 可以并行执行、持续重试并快速产生大量轨迹，但人仍然需要逐条阅读日志、重新理解上下文并手工调整 Prompt、Skill、工具或编排。系统扩展的上限逐渐不再是 Agent 能运行多少次，而是人能够分析多少次。
 
@@ -32,7 +32,7 @@
 
 此前测评中的 Challenge 026 展示了这种差异。在 30 份运行样本中，22 份最终都被记录为失败，但人工复盘后可以进一步分为两类：5 份样本已经看到目标版本，却没有完成从版本信息到 CVE 的关联；另外 17 份已经识别出正确 CVE，只是没有构造出有效 Payload。前者需要改进漏洞知识关联，后者需要改进 PoC 获取、编码转义和环境适配。如果只保留失败标签，这两种完全不同的能力瓶颈会得到相同反馈。
 
-![相同失败结果对应的不同能力缺口](assets/failure-capability-paths.svg)
+![相同失败结果对应的不同能力缺口](assets/failure-capability-paths.png)
 
 XUANJIAN 观测平台的固定审计案例进一步展示了过程证据如何把相同失败映射为不同修改方向。Attempt 60 和 Attempt 65 最终都没有通过 Judge，但前者断在“关键证据进入后续行动”的交接位置，后者断在“重复行动收敛到环境验证”的位置。仅看失败无法区分这两个断点；恢复过程结构后，才能分别提出证据检查点、上下文 handoff、停滞检测和强制回退等修改。
 
@@ -56,7 +56,7 @@ XUANJIAN 观测平台的固定审计案例进一步展示了过程证据如何�
 
 另一种方式是在每一种 Agent 实现内部增加专用观测逻辑。它可以获得更多细节，但也容易使观测代码与推理循环、工具系统、MCP、Skill 和 Subagent 编排高度耦合。每增加一种能力，都需要同步设计新的采集入口；上游 Runtime 发生变化时，观测层也必须跟随内部实现调整。
 
-![Agent Harness 的可观测性接入困境](assets/harness-observability-tradeoff.svg)
+![Agent Harness 的可观测性接入困境](assets/harness-observability-tradeoff.png)
 
 因此，需要统一的不是 Agent 的内部实现，而是跨框架分析所需的最小行为语义：Agent 面对什么目标，执行了什么动作，获得了什么结果，是否使用了已有证据，如何从失败中恢复，以及最终结论是否得到环境和 Judge 支持。不同 Agent 可以继续保留自己的执行架构和记忆方式，但其可观测过程应能够被转换为统一、细粒度且可比较的过程数据。
 
@@ -114,7 +114,7 @@ AePis 同时支持前台等待和后台并行两种调用方式，但默认禁�
 
 AePis 将这种专业红队协作方式映射到 Agent Harness：Main Agent 相当于红队负责人，负责建立假设、划分任务、选择攻击路径和综合证据；强角色 Subagent 相当于不同领域的专业成员，在各自职责范围内独立检测。多个方向可以同时推进，Main Agent 也可以继续分析已有信息，而不必等待某一个扫描、枚举或 PoC 验证任务结束。只有后续决策必须依赖某个结果时，才切换为前台等待。
 
-![专业红队式的并行 Subagent 协作](assets/red-team-parallel-collaboration.svg)
+![专业红队式的并行 Subagent 协作](assets/red-team-parallel-collaboration.png)
 
 图：AePis 对专业红队协作方式的映射。Main Agent 统一分工和决策，专业 Subagent 各司其职、并行验证，结果以结构化事实和证据回到 Main Agent，形成下一轮测试策略。
 
@@ -155,7 +155,7 @@ AePis 的 Observer 不是独立于运行时的日志分析器。它建立在 `pi
 
 Observer 采用旁路、只读的运行方式，其处理链路如下：
 
-![Observer 与 Supervisor 的工程链路](assets/observer-feedback-pipeline.svg)
+![Observer 与 Supervisor 的工程链路](assets/observer-feedback-pipeline.png)
 
 工程上，这条链路包含四个关键步骤：
 
